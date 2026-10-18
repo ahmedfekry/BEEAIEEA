@@ -1,36 +1,45 @@
-import Link from "next/link";
+import { Suspense } from "react";
 import { notFound } from "next/navigation";
 import { FAMILIES, FLOWS, getFlow, isFamily } from "@/lib/catalog";
+import { AssessmentWizard } from "@/components/wizard/AssessmentWizard";
 
 export function generateStaticParams() {
   return FLOWS.map((f) => ({ family: f.family, flow: f.id }));
 }
 
-// Placeholder: the multi-step form engine is added in the next milestone.
-export default async function FlowPage({
-  params,
-}: {
-  params: Promise<{ family: string; flow: string }>;
-}) {
+// `params` is read inside Suspense so the route shell can render instantly.
+export default function FlowPage({ params }: PageProps<"/assess/[family]/[flow]">) {
+  return (
+    <main className="mx-auto min-h-screen w-full max-w-5xl px-4 py-10 sm:px-6">
+      <Suspense fallback={<FlowSkeleton />}>
+        <FlowContent params={params} />
+      </Suspense>
+    </main>
+  );
+}
+
+async function FlowContent({ params }: { params: Promise<{ family: string; flow: string }> }) {
   const { family, flow: flowId } = await params;
   if (!isFamily(family)) notFound();
   const flow = getFlow(family, flowId);
   if (!flow) notFound();
 
   return (
-    <main className="mx-auto min-h-screen max-w-3xl px-6 py-14">
-      <Link
-        href={`/assess/${family}`}
-        className="text-sm font-medium text-slate-500 hover:text-emerald-700"
-      >
-        ← Back
-      </Link>
-      <h1 className="mt-6 text-3xl font-semibold text-slate-900">
-        {FAMILIES[family].name} · {flow.title}
-      </h1>
-      <div className="mt-8 rounded-xl border border-dashed border-slate-300 bg-white p-10 text-center text-slate-500">
-        The multi-step form for this assessment is coming in the next milestone.
-      </div>
-    </main>
+    <AssessmentWizard
+      family={family}
+      flowId={flow.id}
+      familyName={FAMILIES[family].name}
+      title={flow.title}
+    />
+  );
+}
+
+function FlowSkeleton() {
+  return (
+    <div className="animate-pulse space-y-6">
+      <div className="h-4 w-16 rounded bg-slate-200" />
+      <div className="h-8 w-80 rounded bg-slate-200" />
+      <div className="h-96 rounded-xl border border-slate-200 bg-white" />
+    </div>
   );
 }
