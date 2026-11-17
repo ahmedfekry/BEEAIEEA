@@ -31,17 +31,23 @@ export default function Home() {
               <span className="mb-5 inline-flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-50 text-lg font-bold text-emerald-700">
                 {key === "beea" ? "B" : "I"}
               </span>
-              <h2 className="text-3xl font-semibold text-slate-900">{f.name}</h2>
-              <p className="mt-1 text-sm font-medium text-slate-500">{f.fullName}</p>
+              {f.cardTitle ? (
+                <h2 className="text-2xl font-semibold leading-snug text-slate-900">{f.cardTitle}</h2>
+              ) : (
+                <>
+                  <h2 className="text-3xl font-semibold text-slate-900">{f.name}</h2>
+                  <p className="mt-1 text-sm font-medium text-slate-500">{f.fullName}</p>
+                </>
+              )}
               <p className="mt-4 text-slate-600">{f.blurb}</p>
-              <ul className="mt-5 space-y-2 text-sm text-slate-600">
+              {/* <ul className="mt-5 space-y-2 text-sm text-slate-600">
                 {f.points.map((p) => (
                   <li key={p} className="flex items-center gap-2">
                     <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
                     {p}
                   </li>
                 ))}
-              </ul>
+              </ul> */}
               <span className="mt-8 inline-flex items-center gap-1 text-sm font-semibold text-emerald-700 group-hover:gap-2">
                 Select {f.name} <span aria-hidden>→</span>
               </span>

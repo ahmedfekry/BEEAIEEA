@@ -52,8 +52,8 @@ Dynamic routes need `generateStaticParams` because Cache Components is on.
 
 ## Form steps per flow
 - BEEA (all 3): Project -> Building Info -> Facade -> A/C System -> Air Distribution -> Lighting -> Mechanical Ventilation -> Other Systems -> Review
-- IEEA New Dev: Project -> Building Info (industry, monthly production, optional primary fuel) -> System Types -> Review
-- IEEA Existing: Project -> Building Info -> Consumption -> Facility KPIs (varies by industry) -> System Types -> one step per selected system -> Review
+- IEEA New Dev: Project -> Facility Info (industry, monthly production, optional primary fuel) -> System Types -> Review
+- IEEA Existing: Project -> Facility Info -> Consumption -> Facility KPIs (varies by industry) -> System Types -> one step per selected system -> Review
 
 ## Result handling
 - BEEA: show the returned PDF inline and allow download.

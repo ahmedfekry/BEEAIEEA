@@ -1,7 +1,7 @@
 "use client";
 
 import { get, type FieldErrors, type UseFormRegister } from "react-hook-form";
-import { describeRange, resolve, type FieldDef, type Values } from "@/lib/forms/engine";
+import { resolve, type FieldDef, type Values } from "@/lib/forms/engine";
 
 const inputCls =
   "block w-full rounded-lg border bg-white px-3 py-2 text-sm text-slate-900 shadow-sm outline-none transition placeholder:text-slate-400 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20";
@@ -19,17 +19,10 @@ export function FieldInput({
 }) {
   const error = get(errors, field.name)?.message as string | undefined;
   const unit = resolve(field.unit, values);
-  const range = resolve(field.range, values);
   const id = `f-${field.name.replace(/\./g, "-")}`;
   const border = error ? "border-red-400" : "border-slate-300";
   const describedBy = `${id}-hint`;
 
-  const hint = [
-    range && (field.type === "number" || field.type === "int") ? `Range ${describeRange(range)}` : undefined,
-    field.help,
-  ]
-    .filter(Boolean)
-    .join(" · ");
 
   if (field.type === "toggle") {
     return (
@@ -119,9 +112,11 @@ export function FieldInput({
           {...register(field.name)}
         />
       )}
-      <p id={describedBy} className={`mt-1 text-xs ${error ? "font-medium text-red-600" : "text-slate-500"}`}>
-        {error ?? (hint || " ")}
-      </p>
+      {error && (
+        <p id={describedBy} className="mt-1 text-xs font-medium text-red-600">
+          {error}
+        </p>
+      )}
     </div>
   );
 }

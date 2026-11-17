@@ -538,7 +538,7 @@ export const ieeaNewDev: FlowSchema = {
   constants: { ProjectStatus: "New Development", [`${BI}.BuildingType`]: "Industrial Facility" },
   steps: [
     { id: "project", title: "Project", description: "Basic project details.", fields: projectFields({ egyptOnly: true, sampleName: "Demo Automotive Plant", gfa: "18000" }) },
-    { id: "building", title: "Building info", description: "Industry, expected production and (optionally) the primary fuel.", fields: buildingInfoFields(false) },
+    { id: "building", title: "Facility info", description: "Industry, expected production and (optionally) the primary fuel.", fields: buildingInfoFields(false) },
     {
       id: "systems",
       title: "System types",
@@ -553,7 +553,7 @@ export const ieeaExisting: FlowSchema = {
   constants: { ProjectStatus: "Existing Building", [`${BI}.BuildingType`]: "Industrial Facility" },
   steps: [
     { id: "project", title: "Project", description: "Basic project details.", fields: projectFields({ egyptOnly: true, sampleName: "Demo Cement Works", gfa: "45000" }) },
-    { id: "building", title: "Building info", description: "Industry and measured production.", fields: buildingInfoFields(true) },
+    { id: "building", title: "Facility info", description: "Industry and measured production.", fields: buildingInfoFields(true) },
     { id: "consumption", title: "Consumption", description: "Average monthly consumption from utility bills or meters. Enter 0 for sources you don't use.", fields: consumptionFields },
     {
       id: "kpis",

@@ -12,7 +12,7 @@ export type Flow = {
 
 export const FAMILIES: Record<
   Family,
-  { name: string; fullName: string; blurb: string; points: string[] }
+  { name: string; fullName: string; cardTitle?: string; blurb: string; points: string[] }
 > = {
   beea: {
     name: "BEEA",
@@ -24,8 +24,9 @@ export const FAMILIES: Record<
   ieea: {
     name: "IEEA",
     fullName: "Industrial Energy Efficiency Assessment",
+    cardTitle: "Industrial Energy Efficiency Assessment (IEEA)",
     blurb:
-      "Benchmark industrial facilities against Best Available Techniques. Returns structured results we turn into a PDF.",
+      "A preliminary energy and resource audit of industrial facilities and production lines, designed to identify and prioritize resource-saving opportunities across energy, water, materials, and waste streams.",
     points: ["17 industries", "Motors, boilers, furnaces & more", "Energy, water & material savings"],
   },
 };
