@@ -1,7 +1,7 @@
 import "server-only";
 import { PDFDocument, rgb, StandardFonts } from "pdf-lib";
 import { getPath, type Values } from "./forms/engine";
-import { INDUSTRY_KPIS, SYSTEM_TYPES, type Industry, type SystemLabel } from "./forms/ieea";
+import { INDUSTRY_KPIS, INFO_ONLY_KPIS, SYSTEM_TYPES, type Industry, type SystemLabel } from "./forms/ieea";
 import type { IeeaResult } from "./ieea-result";
 import { winAnsi } from "./pdf-text";
 
@@ -178,18 +178,35 @@ export function mockIeeaResult(payload: Values, existing: boolean): IeeaResult {
   const carbon = energy * 0.075 + (Number(cons.MonthlyOtherConsumption) || 0) * 12 * (Number(cons.OtherEnergyEF) || 0);
 
   // KPIs
+  // v2.0 semantics: a submitted value wins ("Submitted"); otherwise the engine derives it ("Derived";
+  // "Baseline" for New Development) or, for KPIs it cannot derive (percentages, info-only), leaves it
+  // out and lists it under KPIsNotAssessed. Info-only KPIs get a null verdict.
   const KPIBenchmarking: Record<string, unknown> = {};
+  const KPIsNotAssessed: string[] = [];
   for (const [name, label, unit, , sample] of kpiDefs) {
-    const value = Number(existing ? kpiInput[name] : sample) || Number(sample);
+    const submitted = existing && String(kpiInput[name] ?? "") !== "";
+    const derivable = !existing || (unit !== "%" && !INFO_ONLY_KPIS.includes(name));
+    if (!submitted && !derivable) {
+      KPIsNotAssessed.push(name);
+      continue;
+    }
+    if (name === "VOCEmissions" && bi.PrintingMethod === "Digital") {
+      KPIsNotAssessed.push(name);
+      continue;
+    }
+    const value = Number(submitted ? kpiInput[name] : sample);
+    const info = INFO_ONLY_KPIS.includes(name);
     const { bat, result } = bench(value, higherIsBetter(name, unit));
     KPIBenchmarking[name] = round(value);
     KPIBenchmarking[`${name}OfBAT`] = round(bat);
-    KPIBenchmarking[`${name}BenchmarkingResult`] = result;
+    KPIBenchmarking[`${name}BenchmarkingResult`] = info ? null : result;
+    KPIBenchmarking[`${name}ValueSource`] = submitted ? "Submitted" : existing ? "Derived" : "Baseline";
     KPIBenchmarking[`${name}Recommendation`] =
-      result === "On Track" ? "-" : [`Close the gap to BAT on ${label} with targeted upgrades`];
+      info || result === "On Track" ? "-" : [`Close the gap to BAT on ${label} with targeted upgrades`];
   }
-  const primary = kpiDefs[0];
+  const primary = kpiDefs.find(([name]) => name in KPIBenchmarking && !INFO_ONLY_KPIS.includes(name));
   const sec = primary ? Number(KPIBenchmarking[primary[0]]) : 0;
+  const fuelGJ = existing ? energy - (Number(cons.MonthlyElectricityConsumption) || 0) * 12 * 0.0036 : undefined;
   const secBat = primary ? Number(KPIBenchmarking[`${primary[0]}OfBAT`]) : 0;
 
   // Systems
@@ -209,12 +226,23 @@ export function mockIeeaResult(payload: Values, existing: boolean): IeeaResult {
       BenchmarkingResult: onTrack ? "On Track" : "Needs Improvement",
     };
     const measured = Number(sys.EnergyConsumptionMeasured);
+    // New Development has no system data; Construction Site Energy cannot be estimated there.
+    if (!existing && key === "ConstructionSiteEnergy") {
+      EnergyAnalysisAndRecommendation[key] = {
+        EnergyConsumption: null,
+        EnergyEstimateBasis: "Not estimated",
+        Recommendation: SYSTEM_RECS[key],
+        EnergySavings: null,
+      };
+      return;
+    }
     let consumption = measured > 0 ? measured * (key === "Boilers" ? 1 : 0.0036) : energy * share;
     if (key === "RenewableGeneration") consumption = -Math.abs(consumption);
     const savings = Math.abs(consumption) * (onTrack ? 0.05 : 0.18 + (i % 3) * 0.04);
     if (key !== "RenewableGeneration" && key !== "ConstructionSiteEnergy") totalSavings += savings;
     EnergyAnalysisAndRecommendation[key] = {
       EnergyConsumption: round(consumption),
+      EnergyEstimateBasis: !existing ? "Industry default" : measured > 0 ? "Measured" : Object.keys(sys).length ? "Calculated" : "Industry default",
       Recommendation: SYSTEM_RECS[key],
       EnergySavings: round(savings),
     };
@@ -235,7 +263,23 @@ export function mockIeeaResult(payload: Values, existing: boolean): IeeaResult {
           SECBenchmarkingResult: String(KPIBenchmarking[`${primary[0]}BenchmarkingResult`]),
         }
       : null,
+    CoreIndicators: {
+      PerUnitOf: "MonthlyProduction",
+      TotalEnergyPerUnit: round(energy / (production * 12)),
+      TotalEnergyPerUnitUnit: "GJ",
+      FuelEnergyPerUnit: fuelGJ === undefined ? null : round(fuelGJ / (production * 12)),
+      FuelEnergyPerUnitUnit: "GJ",
+      ElectricityPerUnit: existing ? round((Number(cons.MonthlyElectricityConsumption) || 0) / production) : null,
+      ElectricityPerUnitUnit: "kWh",
+      WaterPerUnit: round(water / (production * 12)),
+      WaterPerUnitUnit: "m3",
+      CO2PerUnit: round((carbon * 1000) / (production * 12)),
+      CO2PerUnitUnit: "kg CO2e",
+      FuelShareOfTotalEnergy: fuelGJ === undefined ? null : round((fuelGJ / energy) * 100),
+      ElectricityShareOfTotalEnergy: fuelGJ === undefined ? null : round(100 - (fuelGJ / energy) * 100),
+    },
     KPIBenchmarking,
+    KPIsNotAssessed,
     SystemPerformanceBenchmarking,
     EnergyAnalysisAndRecommendation,
     WaterAnalysisAndRecommendation: water

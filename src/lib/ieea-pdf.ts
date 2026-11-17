@@ -8,8 +8,7 @@ import {
   kpiRows,
   systemPerfRows,
   toList,
-  type IeeaResult,
-} from "./ieea-result";
+  type IeeaResult, coreIndicatorRows, notAssessedLabels } from "./ieea-result";
 import { winAnsi } from "./pdf-text";
 
 /** Builds the IEEA results PDF from the API response and the submitted payload. */
@@ -213,16 +212,27 @@ export async function generateIeeaPdf({ data, payload, flowTitle, mock }: IeeaPd
   // Project summary
   w.heading("Project summary");
   const prodUnit = PRODUCTION_UNIT[industry as Industry];
+  // The industry-dependent selector (chemical product, steel route, fabric type, ...), if any.
+  const subType = [bi.ChemicalProductType, bi.SteelProductionRoute, bi.GenerationTechnology, bi.FabricType, bi.PrintingMethod, bi.FoodSubSector].find(Boolean);
   const summary: [string, string][] = [
     ["Project name", String(payload.ProjectName ?? "")],
     ["Address", `${payload.ProjectAddress ?? ""}, ${payload.ProjectPostalCode ?? ""}, ${payload.ProjectCountry ?? ""}`],
     ["Project status", String(payload.ProjectStatus ?? "")],
     ["Project GFA", `${fmtNum(payload.ProjectGFA)} m²`],
     ["Facility", `${bi.BuildingName ?? ""} (${fmtNum(bi.GFA)} m²)`],
-    ["Industry", industry + (bi.ChemicalProductType ? ` (${bi.ChemicalProductType})` : "")],
+    ["Industry", industry + (subType ? ` (${subType})` : "")],
     ["Avg. monthly production", `${fmtNum(bi.MonthlyProduction)}${prodUnit ? ` ${prodUnit}` : ""}`],
   ];
   if (bi.PrimaryFuelType) summary.push(["Primary fuel", String(bi.PrimaryFuelType)]);
+  const extras: [string, string, string][] = [
+    ["MonthlyClinkerProduction", "Avg. monthly clinker production", "ton"],
+    ["MonthlyAmmoniaProduction", "Avg. monthly ammonia production", "ton NH3"],
+    ["MonthlyGasFlared", "Avg. monthly gas flared", "m3"],
+    ["MonthlyMethaneEmissions", "Avg. monthly methane emissions", "ton CH4"],
+    ["MonthlyWasteGenerated", "Avg. monthly waste generated", "ton"],
+    ["MonthlyProductionTonnage", "Avg. monthly production tonnage", "ton"],
+  ];
+  for (const [key, label, unit] of extras) if (bi[key] !== undefined) summary.push([label, `${fmtNum(bi[key])} ${unit}`]);
   summary.push(["Systems assessed", ((getPath(payload, "BuildingData.SystemTypes") as string[]) ?? []).join(", ")]);
   w.table([{ header: "Item", width: 150 }, { header: "Value", width: CONTENT_W - 150 }], summary);
 
@@ -236,6 +246,17 @@ export async function generateIeeaPdf({ data, payload, flowTitle, mock }: IeeaPd
     { label: "TOTAL CARBON EMISSION", value: fmtNum(data.TotalCarbonEmission, 0), unit: "t CO2e / year" },
     { label: "POTENTIAL ENERGY SAVINGS", value: fmtNum(totalSavings, 0), unit: `GJ / year${savingsPct}` },
   ]);
+
+  // Core indicators (v2.0)
+  const core = coreIndicatorRows(data.CoreIndicators);
+  if (core.rows.length) {
+    w.heading(`Core indicators${core.perUnitOf ? ` (per unit of ${core.perUnitOf})` : ""}`);
+    w.table(
+      [{ header: "Indicator", width: 220 }, { header: "Value", width: 120, align: "right" }, { header: "Unit", width: CONTENT_W - 340 }],
+      core.rows.map((r) => [r.label, fmtNum(r.value), r.value == null ? "" : r.unit])
+    );
+    w.text("Information only: no benchmark verdict. A dash means not available.", { size: 8.5, color: C.muted, gap: 6 });
+  }
 
   // SEC vs BAT
   const sec = data.SpecificEnergyConsumptionBenchmarking;
@@ -258,13 +279,14 @@ export async function generateIeeaPdf({ data, payload, flowTitle, mock }: IeeaPd
     w.heading("KPI benchmarking");
     w.table(
       [
-        { header: "KPI", width: 170 },
-        { header: "Unit", width: 95 },
-        { header: "Facility", width: 65, align: "right" },
-        { header: "BAT", width: 65, align: "right" },
-        { header: "Result", width: CONTENT_W - 395 },
+        { header: "KPI", width: 150 },
+        { header: "Unit", width: 85 },
+        { header: "Facility", width: 55, align: "right" },
+        { header: "BAT", width: 55, align: "right" },
+        { header: "Result", width: 95 },
+        { header: "Source", width: CONTENT_W - 440 },
       ],
-      kpis.map((k) => [k.label, k.unit ?? "", fmtNum(k.value), fmtNum(k.bat), { badge: k.result }])
+      kpis.map((k) => [k.label, k.unit ?? "", fmtNum(k.value), fmtNum(k.bat), k.infoOnly ? "Info only" : { badge: k.result }, k.valueSource || "–"])
     );
     const withRecs = kpis.filter((k) => k.recommendations.length);
     if (withRecs.length) {
@@ -277,6 +299,14 @@ export async function generateIeeaPdf({ data, payload, flowTitle, mock }: IeeaPd
         w.y -= 3;
       }
     }
+  }
+
+  // KPIs the engine could neither take nor derive: unknown, never satisfactory.
+  const notAssessed = notAssessedLabels(data.KPIsNotAssessed, industry);
+  if (notAssessed.length) {
+    w.heading("Not assessed");
+    w.text("These KPIs were neither entered nor derivable from the data provided, so their performance is unknown (not satisfactory).", { size: 9, gap: 4 });
+    w.bullets(notAssessed);
   }
 
   // System performance benchmarking
@@ -308,15 +338,16 @@ export async function generateIeeaPdf({ data, payload, flowTitle, mock }: IeeaPd
     w.heading("Energy analysis and savings per system");
     w.table(
       [
-        { header: "System", width: 190 },
-        { header: "Consumption (GJ/yr)", width: 115, align: "right" },
-        { header: "Savings (GJ/yr)", width: 105, align: "right" },
-        { header: "Saving %", width: CONTENT_W - 410, align: "right" },
+        { header: "System", width: 150 },
+        { header: "Estimate basis", width: 90 },
+        { header: "Consumption (GJ/yr)", width: 105, align: "right" },
+        { header: "Savings (GJ/yr)", width: 95, align: "right" },
+        { header: "Saving %", width: CONTENT_W - 440, align: "right" },
       ],
       eRows.map((r) => {
         const c = Math.abs(Number(r.consumption));
         const pct = c > 0 && Number(r.savings) ? `${((Number(r.savings) / c) * 100).toFixed(1)}%` : "–";
-        return [r.name, fmtNum(r.consumption), fmtNum(r.savings), pct];
+        return [r.name, r.basis || "–", fmtNum(r.consumption), fmtNum(r.savings), pct];
       })
     );
     w.text(`Total energy savings: ${fmtNum(totalSavings)} GJ/yr (excludes renewable generation and construction site energy).`, {

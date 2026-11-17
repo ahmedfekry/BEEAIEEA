@@ -1,0 +1,46 @@
+{
+  "ProjectName": "AAA",
+  "ProjectAddress": "BBB",
+  "ProjectPostalCode": "000000",
+  "ProjectCountry": "Egypt",
+  "ProjectGFA": "45000",
+  "ProjectStatus": "Existing Building",
+  "BuildingData": {
+    "BuildingInfo": {
+      "BuildingName": "CCC",
+      "GFA": "45000",
+      "BuildingType": "Industrial Facility",
+      "IndustryType": "Cement",
+      "MonthlyProduction": "38000",
+      "MonthlyClinkerProduction": "26600",
+      "Consumption": {
+        "MonthlyElectricityConsumption": "3700000",
+        "MonthlyNaturalGasConsumption": "0",
+        "MonthlyCoalConsumption": "3450",
+        "MonthlyDieselConsumption": "15",
+        "MonthlyPetrolConsumption": "0",
+        "MonthlyLPGConsumption": "0",
+        "MonthlyLNGConsumption": "0",
+        "MonthlyHFOConsumption": "0",
+        "MonthlyLFOConsumption": "0",
+        "MonthlyOtherConsumption": "0",
+        "OtherEnergyEF": "0",
+        "MonthlyWaterConsumption": "8500",
+        "MonthlyRawMaterialConsumption": "58000"
+      },
+      "FacilityKPIs": {}
+    },
+    "SystemTypes": [
+      "Motors",
+      "Compressed Air Systems",
+      "Furnaces",
+      "Clinker Handling / Conveyors",
+      "Renewable Generation (Solar PV/Thermal/Wind)"
+    ],
+    "Motors": {},
+    "CompressedAirSystems": {},
+    "Furnaces": {},
+    "ClinkerHandlingConveyors": {},
+    "RenewableGeneration": {}
+  }
+}

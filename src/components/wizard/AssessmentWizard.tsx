@@ -53,7 +53,8 @@ export function AssessmentWizard({
   title: string;
 }) {
   const schema = useMemo(() => getSchema(family, flowId)!, [family, flowId]);
-  const draftKey = `sleb-draft:${schema.key}`;
+  // v2: bumped when the IEEA schema changed (removed/renamed KPIs, new fields) so stale drafts are not restored.
+  const draftKey = `sleb-draft:v3:${schema.key}`;
   const stepRef = useRef<StepDef | null>(null);
 
   const form = useForm<Values>({

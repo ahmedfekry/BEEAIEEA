@@ -3,10 +3,12 @@
 import { useState, type ReactNode } from "react";
 import { getPath, type Values } from "@/lib/forms/engine";
 import {
+  coreIndicatorRows,
   energyRows,
   fmtNum,
   isOnTrack,
   kpiRows,
+  notAssessedLabels,
   systemPerfRows,
   toList,
   type IeeaResult,
@@ -28,6 +30,8 @@ export function IeeaResults({
   const industry = String(getPath(payload, "BuildingData.BuildingInfo.IndustryType") ?? "");
   const sec = data.SpecificEnergyConsumptionBenchmarking;
   const kpis = kpiRows(data.KPIBenchmarking, industry);
+  const core = coreIndicatorRows(data.CoreIndicators);
+  const notAssessed = notAssessedLabels(data.KPIsNotAssessed, industry);
   const systems = systemPerfRows(data.SystemPerformanceBenchmarking);
   const { rows: energy, total: totalSavings } = energyRows(data.EnergyAnalysisAndRecommendation);
   const water = data.WaterAnalysisAndRecommendation;
@@ -99,9 +103,20 @@ export function IeeaResults({
         </Card>
       )}
 
+      {core.rows.length > 0 && (
+        <Card title={`Core indicators${core.perUnitOf ? ` (per unit of ${core.perUnitOf})` : ""}`}>
+          <div className="grid gap-x-8 gap-y-4 px-5 py-4 sm:grid-cols-2 lg:grid-cols-3">
+            {core.rows.map((r) => (
+              <Metric key={r.label} label={r.label} value={fmtNum(r.value)} unit={r.value == null ? undefined : r.unit} />
+            ))}
+          </div>
+          <p className="px-5 pb-4 text-xs text-slate-500">Information only: no benchmark verdict. “–” means not available.</p>
+        </Card>
+      )}
+
       {kpis.length > 0 && (
         <Card title="KPI benchmarking">
-          <Table head={["KPI", "Facility", "BAT", "Result"]} alignRight={[1, 2]}>
+          <Table head={["KPI", "Facility", "BAT", "Result", "Value source"]} alignRight={[1, 2]}>
             {kpis.map((k) => (
               <tr key={k.name} className="align-top">
                 <td className="px-4 py-3">
@@ -111,12 +126,31 @@ export function IeeaResults({
                 </td>
                 <td className="px-4 py-3 text-right tabular-nums">{fmtNum(k.value)}</td>
                 <td className="px-4 py-3 text-right tabular-nums">{fmtNum(k.bat)}</td>
+                <td className="px-4 py-3">{k.infoOnly ? <InfoOnly /> : <Badge result={k.result} />}</td>
                 <td className="px-4 py-3">
-                  <Badge result={k.result} />
+                  <SourceBadge source={k.valueSource} />
                 </td>
               </tr>
             ))}
           </Table>
+        </Card>
+      )}
+
+      {notAssessed.length > 0 && (
+        <Card title="Not assessed">
+          <div className="px-5 py-4">
+            <p className="text-sm text-slate-600">
+              These KPIs were neither entered nor derivable from your data, so their performance is <strong>unknown</strong>, not
+              satisfactory. Enter a value to have them benchmarked.
+            </p>
+            <ul className="mt-3 flex flex-wrap gap-2">
+              {notAssessed.map((n) => (
+                <li key={n} className="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-700">
+                  {n}
+                </li>
+              ))}
+            </ul>
+          </div>
         </Card>
       )}
 
@@ -143,7 +177,7 @@ export function IeeaResults({
 
       {energy.length > 0 && (
         <Card title="Energy analysis and savings per system">
-          <Table head={["System", "Consumption (GJ/yr)", "Savings (GJ/yr)"]} alignRight={[1, 2]}>
+          <Table head={["System", "Estimate basis", "Consumption (GJ/yr)", "Savings (GJ/yr)"]} alignRight={[2, 3]}>
             {energy.map((r) => {
               const c = Math.abs(Number(r.consumption));
               const pct = c > 0 && Number(r.savings) ? (Number(r.savings) / c) * 100 : 0;
@@ -153,6 +187,7 @@ export function IeeaResults({
                     <p className="font-medium text-slate-900">{r.name}</p>
                     {r.recommendations.length > 0 && <Recs items={r.recommendations} />}
                   </td>
+                  <td className="px-4 py-3 text-slate-600">{r.basis || "–"}</td>
                   <td className="px-4 py-3 text-right tabular-nums">{fmtNum(r.consumption)}</td>
                   <td className="px-4 py-3 text-right tabular-nums">
                     {fmtNum(r.savings)}
@@ -167,6 +202,7 @@ export function IeeaResults({
             })}
             <tr className="bg-slate-50 font-semibold">
               <td className="px-4 py-3">Total energy savings</td>
+              <td />
               <td />
               <td className="px-4 py-3 text-right tabular-nums">{fmtNum(totalSavings)}</td>
             </tr>
@@ -250,6 +286,15 @@ function Badge({ result }: { result?: string }) {
       {result}
     </span>
   );
+}
+
+function InfoOnly() {
+  return <span className="inline-flex whitespace-nowrap rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-600">Info only</span>;
+}
+
+function SourceBadge({ source }: { source?: string }) {
+  if (!source) return <span className="text-slate-400">–</span>;
+  return <span className="whitespace-nowrap text-xs font-medium text-slate-600">{source}</span>;
 }
 
 function Recs({ items }: { items: string[] }) {

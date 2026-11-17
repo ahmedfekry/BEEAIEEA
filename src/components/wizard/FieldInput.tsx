@@ -1,7 +1,7 @@
 "use client";
 
 import { get, type FieldErrors, type UseFormRegister } from "react-hook-form";
-import { resolve, type FieldDef, type Values } from "@/lib/forms/engine";
+import { gateName, isGateOn, resolve, type FieldDef, type Values } from "@/lib/forms/engine";
 
 const inputCls =
   "block w-full rounded-lg border bg-white px-3 py-2 text-sm text-slate-900 shadow-sm outline-none transition placeholder:text-slate-400 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20";
@@ -23,6 +23,12 @@ export function FieldInput({
   const border = error ? "border-red-400" : "border-slate-300";
   const describedBy = `${id}-hint`;
 
+
+  // Opt-in input: a checkbox reveals the value field; unticked sources are sent with their default.
+  const opt = field.optInput;
+  const gateOn = opt ? isGateOn(field, values) : true;
+  if (opt?.follows && !gateOn) return null;
+  const ownsGate = !!opt && !opt.follows;
 
   if (field.type === "toggle") {
     return (
@@ -77,11 +83,11 @@ export function FieldInput({
     );
   }
 
-  return (
-    <div className={field.wide ? "sm:col-span-2" : undefined}>
+  const control = (
+    <>
       <label htmlFor={id} className="mb-1.5 flex items-baseline justify-between gap-2 text-sm font-medium text-slate-800">
-        <span>
-          {field.label} {field.required && <span className="text-red-500">*</span>}
+        <span className={ownsGate ? "sr-only" : undefined}>
+          {field.label} {(field.required || field.requiredWhen?.(values)) && <span className="text-red-500">*</span>}
         </span>
         {unit && <span className="shrink-0 text-xs font-normal text-slate-500">{unit}</span>}
       </label>
@@ -117,6 +123,23 @@ export function FieldInput({
           {error}
         </p>
       )}
+    </>
+  );
+
+  if (!ownsGate) return <div className={field.wide ? "sm:col-span-2" : undefined}>{control}</div>;
+
+  const gateId = `${id}-use`;
+  return (
+    <div className={`rounded-lg border bg-white p-3 transition ${gateOn ? "border-emerald-500" : "border-slate-200"} ${field.wide ? "sm:col-span-2" : ""}`}>
+      <label htmlFor={gateId} className="flex cursor-pointer items-center gap-3">
+        <input id={gateId} type="checkbox" className="h-4 w-4 rounded border-slate-300 accent-emerald-600" {...register(gateName(field))} />
+        <span className="text-sm font-medium text-slate-800">
+          {field.label}
+          {!gateOn && <span className="ml-2 text-xs font-normal text-slate-500">not used (sent as {opt!.off})</span>}
+        </span>
+      </label>
+      {field.help && <p className="ml-7 mt-1 text-xs text-slate-500">{field.help}</p>}
+      {gateOn && <div className="mt-3">{control}</div>}
     </div>
   );
 }

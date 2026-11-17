@@ -1,0 +1,159 @@
+{
+  "result": {
+    "errcode": 0,
+    "errmsg": ""
+  },
+  "data": {
+    "TotalEnergyConsumption": "1234404",
+    "TotalCarbonEmission": "126532.14",
+    "SpecificEnergyConsumptionBenchmarking": {
+      "SEC": "3.37",
+      "SECOfBAT": "3.4",
+      "SECUnit": "GJ/t clinker",
+      "SECBenchmarkingResult": "On Track"
+    },
+    "CoreIndicators": {
+      "PerUnitOf": "MonthlyProduction",
+      "TotalEnergyPerUnit": "2.71",
+      "TotalEnergyPerUnitUnit": "GJ",
+      "FuelEnergyPerUnit": "2.36",
+      "FuelEnergyPerUnitUnit": "GJ",
+      "ElectricityPerUnit": "97.37",
+      "ElectricityPerUnitUnit": "kWh",
+      "WaterPerUnit": "0.22",
+      "WaterPerUnitUnit": "m3",
+      "CO2PerUnit": "277.48",
+      "CO2PerUnitUnit": "kg CO2e",
+      "FuelShareOfTotalEnergy": "87.05",
+      "ElectricityShareOfTotalEnergy": "12.95"
+    },
+    "KPIBenchmarking": {
+      "SpecificThermalEnergyConsumption": "3.37",
+      "SpecificThermalEnergyConsumptionOfBAT": "3.4",
+      "SpecificThermalEnergyConsumptionBenchmarkingResult": "On Track",
+      "SpecificThermalEnergyConsumptionValueSource": "Submitted",
+      "SpecificThermalEnergyConsumptionRecommendation": "-",
+      "SpecificElectricalEnergyConsumption": "97.4",
+      "SpecificElectricalEnergyConsumptionOfBAT": "90",
+      "SpecificElectricalEnergyConsumptionBenchmarkingResult": "Needs Improvement",
+      "SpecificElectricalEnergyConsumptionValueSource": "Submitted",
+      "SpecificElectricalEnergyConsumptionRecommendation": [
+        "Replace ball mills with Vertical Roller Mills (VRM) or High-Pressure Grinding Rolls (HPGR) for finish grinding",
+        "Install VFDs on all grinding-circuit fans and separators >15 kW"
+      ],
+      "CO2Intensity": "640",
+      "CO2IntensityOfBAT": "550",
+      "CO2IntensityBenchmarkingResult": "Needs Improvement",
+      "CO2IntensityValueSource": "Submitted",
+      "CO2IntensityRecommendation": [
+        "Increase alternative/waste-derived fuel co-firing to displace fossil coal/petcoke (see Alternative Fuel Rate)",
+        "Raise SCM (fly ash/GGBS/limestone filler) substitution to lower the clinker factor (see Clinker Ratio)"
+      ],
+      "ClinkerRatio": "0.7",
+      "ClinkerRatioOfBAT": "0.65",
+      "ClinkerRatioBenchmarkingResult": "Needs Improvement",
+      "ClinkerRatioValueSource": "Submitted",
+      "ClinkerRatioRecommendation": [
+        "Increase fly ash, GGBS and limestone-filler substitution in cement blends"
+      ],
+      "AlternativeFuelRate": "12",
+      "AlternativeFuelRateOfBAT": "30",
+      "AlternativeFuelRateBenchmarkingResult": "Needs Improvement",
+      "AlternativeFuelRateValueSource": "Submitted",
+      "AlternativeFuelRateRecommendation": [
+        "Develop an alternative-fuel (AFR) programme using tyres, biomass and RDF/SRF",
+        "Obtain the EEAA permits required for co-processing alternative fuels"
+      ]
+    },
+    "KPIsNotAssessed": [],
+    "SystemPerformanceBenchmarking": {
+      "Motors": {
+        "MotorEfficiency": "92",
+        "MotorEfficiencyOfBAT": "95",
+        "BenchmarkingResult": "Needs Improvement"
+      },
+      "CompressedAirSystems": {
+        "SpecificPowerConsumption": "6.8",
+        "SpecificPowerConsumptionOfBAT": "4.8",
+        "BenchmarkingResult": "Needs Improvement"
+      },
+      "Furnaces": {
+        "ThermalEfficiency": "82",
+        "ThermalEfficiencyOfBAT": "85",
+        "BenchmarkingResult": "Needs Improvement"
+      },
+      "ClinkerHandlingConveyors": {
+        "MotorEfficiencyClass": "IE2",
+        "MotorEfficiencyClassOfBAT": "IE4",
+        "BenchmarkingResult": "Needs Improvement"
+      },
+      "RenewableGeneration": {
+        "PerformanceRatio": "78",
+        "PerformanceRatioOfBAT": "85",
+        "BenchmarkingResult": "Needs Improvement"
+      }
+    },
+    "EnergyAnalysisAndRecommendation": {
+      "Motors": {
+        "EnergyConsumption": "88560",
+        "EnergyEstimateBasis": "Measured",
+        "Recommendation": [
+          "Install VFDs on all fans >15 kW"
+        ],
+        "EnergySavings": "22140"
+      },
+      "CompressedAirSystems": {
+        "EnergyConsumption": "21150.72",
+        "EnergyEstimateBasis": "Measured",
+        "Recommendation": [
+          "Ultrasonic leak survey and repair",
+          "Install a master compressed-air controller",
+          "Replace fixed-speed (load/unload) compressors with VFD-driven units matched to demand"
+        ],
+        "EnergySavings": "9983.14"
+      },
+      "Furnaces": {
+        "EnergyConsumption": "1068120",
+        "EnergyEstimateBasis": "Measured",
+        "Recommendation": [
+          "Implement walking-beam furnace scheduling/controls and burner tuning",
+          "Audit and tune burner combustion (air-fuel ratio) to reduce excess air",
+          "Install a flue-gas waste-heat recovery unit (e.g. recuperator or economiser) on the furnace exhaust"
+        ],
+        "EnergySavings": "191407.1"
+      },
+      "ClinkerHandlingConveyors": {
+        "EnergyConsumption": "2664",
+        "EnergyEstimateBasis": "Measured",
+        "Recommendation": [
+          "Replace IE1/IE2 conveyor drive motors with IE3-class (or higher) premium-efficiency motors",
+          "Install VFDs on clinker-handling conveyor drives to match belt speed to material throughput",
+          "Install automatic idle-shutdown or motion/load-sensing controls to stop conveyors during idle periods"
+        ],
+        "EnergySavings": "841.82"
+      },
+      "RenewableGeneration": {
+        "EnergyConsumption": "-11880",
+        "EnergyEstimateBasis": "Measured",
+        "Recommendation": [
+          "Implement a regular panel/collector-cleaning and soiling-mitigation programme; keep inverter, tracking-system and turbine O&M current"
+        ],
+        "EnergySavings": "1425.6"
+      },
+      "TotalEnergySavings": "224372.07"
+    },
+    "WaterAnalysisAndRecommendation": {
+      "WaterConsumption": "102000",
+      "WaterRecommendation": [],
+      "TotalWaterSavings": "0"
+    },
+    "RawMaterialAnalysisAndRecommendation": {
+      "RawMaterialConsumption": "696000",
+      "RawMaterialRecommendation": [
+        "Increase fly ash, GGBS and limestone-filler substitution in cement blends",
+        "Improve raw meal grinding/blending efficiency to reduce material losses"
+      ],
+      "TotalRawMaterialSavings": "114144"
+    }
+  }
+}

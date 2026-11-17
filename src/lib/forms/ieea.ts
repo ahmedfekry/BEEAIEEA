@@ -40,13 +40,13 @@ export const PRODUCTION_UNIT: Record<Industry, string> = {
   Leather: "ton",
   Engineering: "piece",
   Automotive: "piece",
-  Furniture: "piece",
+  Furniture: "ton",
   Electronics: "piece",
   Pharmaceuticals: "US$1000 revenue",
   Handicraft: "US$1000 revenue",
   Hydrocarbons: "boe",
   Electricity: "kWh",
-  Construction: "m²",
+  Construction: "m² built",
 };
 
 export const FUEL_TYPES = ["Natural Gas", "Coal", "Diesel", "Petrol", "LPG", "LNG", "HFO", "LFO", "Electricity"] as const;
@@ -104,9 +104,8 @@ export const INDUSTRY_KPIS: Record<Industry, KpiRow[]> = {
     ["AlternativeFuelRate", "Alternative fuel rate", "%", PCT, "22"],
   ],
   "Iron & Steel": [
-    ["SpecificEnergyConsumptionEAFRoute", "Specific energy consumption (EAF route)", "GJ/t crude steel", POS, "2.6"],
+    ["SpecificEnergyConsumption", "Specific energy consumption (for the selected route)", "GJ/t crude steel", POS, "2.6"],
     ["EAFElectricityIntensity", "EAF electricity intensity", "kWh/t crude steel", POS, "450"],
-    ["SpecificEnergyConsumptionDRIEAFRoute", "Specific energy consumption (DRI–EAF route)", "GJ/t crude steel", POS, "18"],
     ["MotorSystemEfficiency", "Motor system efficiency", "%", PCT, "85"],
     ["CO2Intensity", "CO₂ intensity", "t CO₂/t steel", POS, "1.1"],
     ["ScrapRecoveryRate", "Scrap recovery rate", "%", PCT, "90"],
@@ -123,7 +122,6 @@ export const INDUSTRY_KPIS: Record<Industry, KpiRow[]> = {
     ["NaturalGasConsumptionIntensity", "Natural gas consumption intensity", "Nm³/t NH₃", POS, "900"],
     ["SteamConsumption", "Steam consumption", "GJ/t product", POS, "3"],
     ["CO2CaptureRate", "CO₂ capture rate", "%", PCT, "30"],
-    ["ElectricityIntensity", "Electricity intensity", "kWh/t NH₃", POS, "120"],
   ],
   Textiles: [
     ["SteamConsumption", "Steam consumption", "GJ/t fabric", POS, "25"],
@@ -135,6 +133,7 @@ export const INDUSTRY_KPIS: Record<Industry, KpiRow[]> = {
   Food: [
     ["ThermalEnergyIntensity", "Thermal energy intensity", "GJ/t product", POS, "2.5"],
     ["ElectricityIntensity", "Electricity intensity", "kWh/t product", POS, "250"],
+    ["SpecificEnergyConsumption", "Specific energy consumption (total energy)", "MWh/t", POS, "0.8"],
     ["RefrigerationCOP", "Refrigeration COP", "COP", POS, "3"],
     ["BoilerEfficiency", "Boiler efficiency", "%", PCT, "82"],
     ["RenewableEnergyShare", "Renewable energy share", "%", PCT, "5"],
@@ -148,7 +147,7 @@ export const INDUSTRY_KPIS: Record<Industry, KpiRow[]> = {
     ["SolventRecoveryRate", "Solvent recovery rate", "%", PCT, "60"],
   ],
   Engineering: [
-    ["SpecificEnergyConsumption", "Specific energy consumption", "kWh/unit", POS, "40"],
+    ["SpecificEnergyConsumption", "Specific energy consumption (total energy)", "kWh/unit", POS, "40"],
     ["MotorSystemEfficiency", "Motor system efficiency", "%", PCT, "85"],
     ["CompressedAirEfficiency", "Compressed air efficiency", "kWh/m³", POS, "0.13"],
     ["MaterialUtilisationRate", "Material utilisation rate", "%", PCT, "85"],
@@ -166,17 +165,17 @@ export const INDUSTRY_KPIS: Record<Industry, KpiRow[]> = {
   ],
   Furniture: [
     ["WoodMaterialYield", "Wood material yield", "%", PCT, "60"],
-    ["SpecificEnergyConsumption", "Specific energy consumption", "kWh/m³", POS, "300"],
+    ["SpecificEnergyConsumption", "Specific energy consumption (total energy)", "GJ/t product", POS, "4"],
     ["VOCEmissionsRate", "VOC emissions rate", "g VOC/m² surface", POS, "60"],
     ["DustExtractionEfficiency", "Dust extraction efficiency", "%", PCT, "90"],
     ["WaterBasedCoatingsShare", "Water-based coatings share", "%", PCT, "30"],
     ["WasteWoodRecoveryRate", "Waste wood recovery rate", "%", PCT, "50"],
   ],
   "Printing & Packaging": [
-    ["SpecificEnergyConsumption", "Specific energy consumption", "kWh/t output", POS, "800"],
+    ["SpecificEnergyConsumption", "Specific energy consumption (total energy)", "kWh/t output", POS, "800"],
     ["InkChemicalWasteRate", "Ink & chemical waste rate", "kg/t product", POS, "15"],
     ["PaperMaterialWasteRate", "Paper/material waste rate", "%", PCT, "8"],
-    ["VOCEmissions", "VOC emissions", "g VOC/m² printed", POS, "2"],
+    ["VOCEmissions", "VOC emissions", "kg VOC/t paper", POS, "2"],
     ["RecycledContentShare", "Recycled content share", "%", PCT, "40"],
     ["WaterConsumption", "Water consumption", "m³/t output", POS, "10"],
   ],
@@ -185,11 +184,11 @@ export const INDUSTRY_KPIS: Record<Industry, KpiRow[]> = {
     ["ChromiumRecoveryRate", "Chromium recovery rate", "%", PCT, "60"],
     ["ChemicalOxygenDemandCOD", "Chemical oxygen demand (COD)", "mg/L in effluent", POS, "3000"],
     ["SolidWasteGeneration", "Solid waste generation", "kg/t hide", POS, "600"],
-    ["EnergyConsumption", "Energy consumption", "GJ/t finished leather", POS, "20"],
+    ["EnergyConsumption", "Energy consumption", "GJ/t raw hide", POS, "20"],
     ["EffluentSulphideContent", "Effluent sulphide content", "mg/L", POS, "5"],
   ],
   Handicraft: [
-    ["EnergyIntensity", "Energy intensity", "kWh/$1K revenue", POS, "150"],
+    ["EnergyIntensity", "Energy intensity (total energy)", "kWh/$1K revenue", POS, "150"],
     ["RenewableEnergyShare", "Renewable energy share", "%", PCT, "5"],
     ["MaterialWasteRate", "Material waste rate", "%", PCT, "15"],
     ["WaterConsumption", "Water consumption", "m³/t product", POS, "20"],
@@ -215,7 +214,8 @@ export const INDUSTRY_KPIS: Record<Industry, KpiRow[]> = {
     ["SAIDI", "SAIDI", "hours/customer/yr", POS, "8"],
   ],
   Construction: [
-    ["EnergyUseIntensityEUI", "Energy use intensity (EUI)", "kWh/m²/yr", POS, "180"],
+    ["EnergyUseIntensityEUI", "Energy use intensity of the completed building (EUI)", "kWh/m²/yr", POS, "180"],
+    ["SiteEnergyIntensity", "Site energy intensity (construction sites)", "kWh/m² built", POS, "25"],
     ["EmbodiedCarbonIntensity", "Embodied carbon intensity", "kg CO₂e/m²", POS, "600"],
     ["ConstructionWasteRate", "Construction waste rate", "kg/m²", POS, "40"],
     ["WaterConsumptionOnSite", "Water consumption on site", "m³/m²", POS, "0.5"],
@@ -223,7 +223,7 @@ export const INDUSTRY_KPIS: Record<Industry, KpiRow[]> = {
     ["RecycledMaterialShare", "Recycled material share", "%", PCT, "10"],
   ],
   Electronics: [
-    ["SpecificEnergyConsumption", "Specific energy consumption", "kWh/unit", POS, "2"],
+    ["SpecificEnergyConsumption", "Specific energy consumption (total energy)", "kWh/unit", POS, "2"],
     ["YieldRate", "Yield rate", "%", PCT, "95"],
     ["SolderingDefectRate", "Soldering defect rate", "DPMO", POS, "50"],
     ["HazardousWasteGeneration", "Hazardous waste generation", "kg/t output", POS, "20"],
@@ -232,6 +232,9 @@ export const INDUSTRY_KPIS: Record<Industry, KpiRow[]> = {
     ["OEEOverallEquipmentEff", "OEE (overall equipment effectiveness)", "%", PCT, "70"],
   ],
 };
+
+/** KPIs that are shown for information only: the API returns no benchmark verdict for them. */
+export const INFO_ONLY_KPIS = ["RefineryComplexityIndex", "CapacityFactorSolarPV", "CapacityFactorWind"];
 
 export const BUILDING_ENERGY_RATINGS = ["Certified", "Silver", "Gold", "Platinum", "1 Star", "2 Star", "3 Star", "4 Star", "5 Star"];
 
@@ -252,7 +255,6 @@ function kpiFields(): FieldDef[] {
         type: "number",
         unit,
         range,
-        required: true,
         sample,
         visibleWhen: (v) => industry(v) === ind,
       });
@@ -263,7 +265,7 @@ function kpiFields(): FieldDef[] {
     label: "Building energy rating (Star / LEED level)",
     type: "select",
     options: BUILDING_ENERGY_RATINGS,
-    required: true,
+    emptyOption: "Not specified",
     sample: "Gold",
     visibleWhen: (v) => industry(v) === "Construction",
   });
@@ -281,6 +283,7 @@ const measured = (sample: string): SysRow => ["EnergyConsumptionMeasured", "Ener
 export const SYSTEM_FIELDS: Record<string, SysRow[]> = {
   Motors: [
     ["RatedPower", "Rated power", "kW", POS, "750"],
+    ["NumberOfMotors", "Number of motors (that the rated power totals)", undefined, { min: 1, integer: true }, "12"],
     ["MotorEfficiency", "Motor efficiency", "%", PCT, "88"],
     ["OperatingHours", "Operating hours", "h/yr", HOURS, "7200"],
     ["LoadFactor", "Load factor", "%", PCT, "65"],
@@ -459,31 +462,157 @@ function systemSteps(): StepDef[] {
 // ---------------------------------------------------------------------------
 // Shared building-info fields
 
+const SELECTORS: { name: string; label: string; industry: Industry; options: readonly string[]; sample: string }[] = [
+  { name: "ChemicalProductType", label: "Chemical product type", industry: "Chemicals", options: ["Ethylene", "Methanol"], sample: "Methanol" },
+  { name: "SteelProductionRoute", label: "Steel production route", industry: "Iron & Steel", options: ["DRI-EAF", "Scrap-EAF"], sample: "Scrap-EAF" },
+  {
+    name: "GenerationTechnology",
+    label: "Generation technology",
+    industry: "Electricity",
+    options: ["Coal-fired steam turbine", "Combined cycle gas turbine", "Gas-fired steam turbine", "Open cycle gas turbine"],
+    sample: "Combined cycle gas turbine",
+  },
+  { name: "FabricType", label: "Fabric type", industry: "Textiles", options: ["Knitted", "Woven"], sample: "Woven" },
+  {
+    name: "PrintingMethod",
+    label: "Printing method",
+    industry: "Printing & Packaging",
+    options: [
+      "Coldset web offset - forms",
+      "Coldset web offset - newspaper",
+      "Coldset web offset - other",
+      "Digital",
+      "Flexography",
+      "Heatset web offset",
+      "Rotogravure",
+      "Screen printing",
+      "Sheet-fed offset",
+    ],
+    sample: "Flexography",
+  },
+  {
+    name: "FoodSubSector",
+    label: "Food sub-sector",
+    industry: "Food",
+    options: [
+      "Compound animal feed",
+      "Dairy - cheese",
+      "Dairy - fermented milk",
+      "Dairy - market milk",
+      "Dairy - milk powder",
+      "Grain milling",
+      "Meat processing",
+      "Oilseed crushing and refining - rapeseed or sunflower",
+      "Oilseed crushing and refining - soybean",
+      "Potato processing",
+      "Starch - maize or wheat",
+      "Starch - potato",
+      "Sugar beet processing",
+      "Tomato processing",
+      "Vegetable oil refining (stand-alone)",
+      "Other",
+    ],
+    sample: "Grain milling",
+  },
+];
+
+const inIndustries = (...list: Industry[]) => (v: Values) => list.includes(industry(v) as Industry);
+
+/** Extra monthly quantities that only the Existing Facility flow asks for (v2.0). */
+function existingQuantityFields(): FieldDef[] {
+  return [
+    {
+      name: `${BI}.MonthlyAmmoniaProduction`,
+      label: "Average monthly ammonia production",
+      type: "number",
+      unit: "ton NH₃",
+      range: POS,
+      required: true,
+      sample: "12000",
+      visibleWhen: inIndustries("Fertilizers"),
+    },
+    {
+      name: `${BI}.MonthlyClinkerProduction`,
+      label: "Average monthly clinker production",
+      type: "number",
+      unit: "ton",
+      range: POS,
+      // Not needed when the clinker ratio is entered directly under Facility KPIs.
+      requiredWhen: (v) => String(getPath(v, `${KPI}.ClinkerRatio`) ?? "").trim() === "",
+      sample: "26600",
+      visibleWhen: inIndustries("Cement"),
+    },
+    {
+      name: `${BI}.MonthlyGasFlared`,
+      label: "Average monthly gas flared (optional)",
+      type: "number",
+      unit: "m³",
+      range: NONNEG,
+      sample: "1200",
+      visibleWhen: inIndustries("Hydrocarbons"),
+    },
+    {
+      name: `${BI}.MonthlyMethaneEmissions`,
+      label: "Average monthly methane emissions (optional)",
+      type: "number",
+      unit: "ton CH₄",
+      range: NONNEG,
+      sample: "15",
+      visibleWhen: inIndustries("Hydrocarbons"),
+    },
+    {
+      name: `${BI}.MonthlyWasteGenerated`,
+      label: "Average monthly waste generated (optional)",
+      type: "number",
+      unit: "ton",
+      range: NONNEG,
+      sample: "40",
+      visibleWhen: inIndustries("Leather", "Construction", "Handicraft", "Pharmaceuticals", "Electronics"),
+    },
+    {
+      name: `${BI}.MonthlyProductionTonnage`,
+      label: "Average monthly production tonnage (optional)",
+      type: "number",
+      unit: "ton",
+      range: POS,
+      sample: "300",
+      visibleWhen: inIndustries("Pharmaceuticals", "Handicraft", "Engineering", "Electronics"),
+    },
+  ];
+}
+
 function buildingInfoFields(existing: boolean): FieldDef[] {
   return [
     { name: `${BI}.BuildingName`, label: "Facility name", type: "text", required: true, sample: existing ? "Kiln Line 2" : "Assembly Plant 1", wide: true },
     { name: `${BI}.GFA`, label: "Facility gross floor area", type: "number", unit: "m²", range: POS, required: true, sample: existing ? "45000" : "18000", help: "Excluding car park area." },
     { name: `${BI}.IndustryType`, label: "Industry type", type: "select", options: INDUSTRIES, required: true, sample: existing ? "Cement" : "Automotive" },
-    {
-      name: `${BI}.ChemicalProductType`,
-      label: "Chemical product type",
-      type: "select",
-      options: ["Ethylene", "Methanol"],
-      required: true,
-      sample: "Methanol",
-      visibleWhen: (v) => industry(v) === "Chemicals",
-    },
+    ...SELECTORS.map(
+      (sel): FieldDef => ({
+        name: `${BI}.${sel.name}`,
+        label: sel.label,
+        type: "select",
+        options: sel.options,
+        required: true,
+        sample: sel.sample,
+        visibleWhen: inIndustries(sel.industry),
+      })
+    ),
     {
       name: `${BI}.MonthlyProduction`,
       label: "Average monthly production",
       type: "number",
-      unit: (v) => PRODUCTION_UNIT[industry(v) as Industry],
+      unit: (v) =>
+        industry(v) === "Chemicals" && getPath(v, `${BI}.ChemicalProductType`) === "Ethylene"
+          ? "ton of high value chemicals (HVC)"
+          : industry(v) === "Construction"
+            ? "m² of GFA built in the month"
+            : PRODUCTION_UNIT[industry(v) as Industry],
       range: POS,
       required: true,
       sample: existing ? "38000" : "4500",
     },
     ...(existing
-      ? []
+      ? existingQuantityFields()
       : [
           {
             name: `${BI}.PrimaryFuelType`,
@@ -523,6 +652,8 @@ const CONSUMPTION: [string, string, string, string][] = [
   ["MonthlyRawMaterialConsumption", "Raw material", "ton", "42000"],
 ];
 
+// Every source is opt-in: tick it to enter a value, otherwise "0" is sent (the API needs all of them).
+// The emission factor belongs to "Other energy" and follows its checkbox.
 const consumptionFields: FieldDef[] = CONSUMPTION.map(([name, label, unit, sample]) => ({
   name: `${CONS}.${name}`,
   label: name === "OtherEnergyEF" ? label : `${label} (avg. monthly)`,
@@ -531,6 +662,8 @@ const consumptionFields: FieldDef[] = CONSUMPTION.map(([name, label, unit, sampl
   range: NONNEG,
   required: true,
   sample,
+  help: name === "MonthlyRawMaterialConsumption" ? "Aggregated value of all the raw materials used." : undefined,
+  optInput: name === "OtherEnergyEF" ? { off: "0", follows: `${CONS}.MonthlyOtherConsumption` } : { off: "0" },
 }));
 
 export const ieeaNewDev: FlowSchema = {
@@ -550,15 +683,16 @@ export const ieeaNewDev: FlowSchema = {
 
 export const ieeaExisting: FlowSchema = {
   key: "ieea/existing",
+  alwaysObjects: [KPI],
   constants: { ProjectStatus: "Existing Building", [`${BI}.BuildingType`]: "Industrial Facility" },
   steps: [
     { id: "project", title: "Project", description: "Basic project details.", fields: projectFields({ egyptOnly: true, sampleName: "Demo Cement Works", gfa: "45000" }) },
-    { id: "building", title: "Facility info", description: "Industry and measured production.", fields: buildingInfoFields(true) },
-    { id: "consumption", title: "Consumption", description: "Average monthly consumption from utility bills or meters. Enter 0 for sources you don't use.", fields: consumptionFields },
+    { id: "building", title: "Facility info", description: "Industry, measured production and the optional quantities that let more KPIs be calculated for you.", fields: buildingInfoFields(true) },
+    { id: "consumption", title: "Consumption", description: "Tick each source the facility uses and enter its average monthly consumption from utility bills or meters. Sources left unticked are sent as 0. For Construction, enter the energy and water used on construction sites in the month.", fields: consumptionFields },
     {
       id: "kpis",
       title: "Facility KPIs",
-      description: "Key performance indicators for the selected industry.",
+      description: "Optional. Leave a KPI blank to let the assessment calculate it from your consumption and production data; a value you enter always takes precedence.",
       fields: kpiFields(),
       visibleWhen: (v) => !!industry(v),
     },

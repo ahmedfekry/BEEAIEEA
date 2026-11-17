@@ -1,0 +1,23 @@
+{
+  "ProjectName": "AAA",
+  "ProjectAddress": "BBB",
+  "ProjectPostalCode": "000000",
+  "ProjectCountry": "Egypt",
+  "ProjectGFA": "18000",
+  "ProjectStatus": "New Development",
+  "BuildingData": {
+    "BuildingInfo": {
+      "BuildingName": "CCC",
+      "GFA": "18000",
+      "BuildingType": "Industrial Facility",
+      "IndustryType": "Automotive",
+      "MonthlyProduction": "4500",
+      "PrimaryFuelType": "Natural Gas"
+    },
+    "SystemTypes": [
+      "Motors",
+      "Air Conditioners (AC Units)",
+      "Lighting Systems"
+    ]
+  }
+}

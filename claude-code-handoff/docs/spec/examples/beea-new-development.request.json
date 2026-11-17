@@ -1,0 +1,72 @@
+{
+  "ProjectName": "Project AAA",
+  "ProjectAddress": "Project Address",
+  "ProjectPostalCode": "123456",
+  "ProjectCountry": "Project Country",
+  "ProjectGFA": "10000",
+  "ProjectStatus": "New Development",
+  "BuildingData": {
+    "BuildingInfo": {
+      "BuildingName": "Building AAA",
+      "GFA": "10000",
+      "BuildingType": "Office Building",
+      "Storey": 10,
+      "YearTOP": "2025",
+      "FBArea": "0",
+      "SupermarArea": "0",
+      "DCArea": "100",
+      "Schedule": "55",
+      "PACArea": "80",
+      "ACType": "Water-cooled Chilled Water Plant",
+      "ExistingADType": "AHU-VAV",
+      "MVArea": "2000"
+    },
+    "Facade": {
+      "PNVArea": "10",
+      "WWR": "0.3",
+      "RoofU": "0.6",
+      "WallU": "0.6",
+      "GlassU": "1.9",
+      "GlassSHGC": "0.25",
+      "FilmU": "4",
+      "FilmSHGC": "0.3",
+      "FrameU": "0.7",
+      "PaintSR": "0.6",
+      "Shading": "0.6"
+    },
+    "ACSystem": {
+      "ChillerEffi": "0.52",
+      "CHWPEffi": "230",
+      "CWPEffi": "210",
+      "CTEffi": "5.2",
+      "ACOpt": "Yes"
+    },
+    "ADSystem": {
+      "PACT": "20",
+      "ADFanEffi": "0.46",
+      "DCV": "Yes",
+      "ERVEffi": "70",
+      "PFan": "50"
+    },
+    "LightingSystem": {
+      "LEDEfficacy": "160",
+      "PLED": "90",
+      "PLigCrl": "50",
+      "PDaylight": "20"
+    },
+    "MVSystem": {
+      "MVFanEffi": "0.15",
+      "PMVCrl": "50"
+    },
+    "OtherSystem": {
+      "PLC": "Yes",
+      "EfficientLift": "Yes",
+      "EfficientEscalator": "Yes",
+      "BEMS": "Yes",
+      "PVEffi": "19",
+      "PVArea": "100",
+      "BIPVEffi": "19",
+      "BIPVArea": "100"
+    }
+  }
+}

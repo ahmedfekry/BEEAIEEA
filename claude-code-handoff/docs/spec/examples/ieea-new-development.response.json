@@ -1,0 +1,145 @@
+{
+  "result": {
+    "errcode": 0,
+    "errmsg": ""
+  },
+  "data": {
+    "TotalEnergyConsumption": "464400",
+    "TotalCarbonEmission": "26052.84",
+    "SpecificEnergyConsumptionBenchmarking": {
+      "SEC": "8.6",
+      "SECOfBAT": "7.2",
+      "SECUnit": "GJ/vehicle",
+      "SECBenchmarkingResult": "Needs Improvement"
+    },
+    "CoreIndicators": {
+      "PerUnitOf": "MonthlyProduction",
+      "TotalEnergyPerUnit": "8.6",
+      "TotalEnergyPerUnitUnit": "GJ",
+      "FuelEnergyPerUnit": null,
+      "FuelEnergyPerUnitUnit": "GJ",
+      "ElectricityPerUnit": null,
+      "ElectricityPerUnitUnit": "kWh",
+      "WaterPerUnit": "6.5",
+      "WaterPerUnitUnit": "m3",
+      "CO2PerUnit": "482.46",
+      "CO2PerUnitUnit": "kg CO2e",
+      "FuelShareOfTotalEnergy": null,
+      "ElectricityShareOfTotalEnergy": null
+    },
+    "KPIBenchmarking": {
+      "SpecificEnergyConsumption": "8.6",
+      "SpecificEnergyConsumptionOfBAT": "7.2",
+      "SpecificEnergyConsumptionBenchmarkingResult": "Needs Improvement",
+      "SpecificEnergyConsumptionRecommendation": [
+        "Install VFDs on all assembly-line conveyors",
+        "Programme robotic standby/sleep mode during line stoppages",
+        "Add energy sub-metering per production line"
+      ],
+      "PaintShopEnergyIntensity": "800",
+      "PaintShopEnergyIntensityOfBAT": "500",
+      "PaintShopEnergyIntensityBenchmarkingResult": "Needs Improvement",
+      "PaintShopEnergyIntensityRecommendation": [
+        "Upgrade to a 3-wet paint process with waterborne coatings",
+        "Install waste-heat recovery (WHR) from the paint-bake oven exhaust",
+        "Optimise flash-off time between coating stages"
+      ],
+      "WaterConsumption": "6.5",
+      "WaterConsumptionOfBAT": "3",
+      "WaterConsumptionBenchmarkingResult": "Needs Improvement",
+      "WaterConsumptionRecommendation": [
+        "Install closed-loop water recirculation in paint/wash processes",
+        "Recover heat from wash-tank discharge",
+        "Target zero liquid discharge (ZLD)"
+      ],
+      "CO2Intensity": "0.75",
+      "CO2IntensityOfBAT": "0.4",
+      "CO2IntensityBenchmarkingResult": "Needs Improvement",
+      "CO2IntensityRecommendation": [
+        "Install rooftop/carport solar PV (5-10 MW per assembly plant), optionally with battery storage for peak shaving",
+        "Combine with paint-shop and assembly-line electrification/efficiency measures above to cut grid-linked CO2"
+      ],
+      "ScrapRecoveryRate": "91",
+      "ScrapRecoveryRateOfBAT": "97",
+      "ScrapRecoveryRateBenchmarkingResult": "Needs Improvement",
+      "ScrapRecoveryRateRecommendation": [
+        "Optimise stamping-die design to reduce metal scrap"
+      ],
+      "RobotUtilisationRate": "75",
+      "RobotUtilisationRateOfBAT": "90",
+      "RobotUtilisationRateBenchmarkingResult": "Needs Improvement",
+      "RobotUtilisationRateRecommendation": [
+        "Optimise production scheduling and changeover procedures to raise robot/line utilisation",
+        "Implement predictive maintenance to reduce unplanned robot downtime"
+      ],
+      "TyreRollingResistance": "9.6",
+      "TyreRollingResistanceOfBAT": "9",
+      "TyreRollingResistanceBenchmarkingResult": "Needs Improvement",
+      "TyreRollingResistanceRecommendation": [
+        "Adopt low-rolling-resistance, silica-reinforced tread compounds and optimised tread/sidewall design in new tyre lines"
+      ]
+    },
+    "KPIsNotAssessed": [],
+    "SystemPerformanceBenchmarking": {
+      "Motors": {
+        "MotorEfficiency": "70",
+        "MotorEfficiencyOfBAT": "90",
+        "BenchmarkingResult": "Needs Improvement"
+      },
+      "AirConditioners": {
+        "EfficiencyValue": "2.7",
+        "EfficiencyValueOfBAT": "4.5",
+        "BenchmarkingResult": "Needs Improvement"
+      },
+      "LightingSystems": {
+        "LightingPowerDensity": "18",
+        "LightingPowerDensityOfBAT": "8.8",
+        "BenchmarkingResult": "Needs Improvement"
+      }
+    },
+    "EnergyAnalysisAndRecommendation": {
+      "Motors": {
+        "EnergyConsumption": "39317.16",
+        "EnergyEstimateBasis": "Industry default",
+        "Recommendation": [
+          "Install VFDs on all fans >15 kW",
+          "Upgrade to motors with IE3/IE4",
+          "Audit motor loading and right-sizing; verify VFD control parameters are correctly tuned to the actual duty cycle"
+        ],
+        "EnergySavings": "12424.22"
+      },
+      "AirConditioners": {
+        "EnergyConsumption": "41725.28",
+        "EnergyEstimateBasis": "Industry default",
+        "Recommendation": [
+          "Implement a filter/coil maintenance programme",
+          "Replace fixed-speed split/packaged units with inverter-driven, high-EER (>4.5) systems",
+          "Install programmable/BMS-based scheduling and setback controls to avoid conditioning unoccupied periods",
+          "Conduct a broader AC system audit (refrigerant charge, coil condition, ductwork/airflow) where maintenance and controls are already in good standing but a performance gap remains"
+        ],
+        "EnergySavings": "16309.58"
+      },
+      "LightingSystems": {
+        "EnergyConsumption": "5248.8",
+        "EnergyEstimateBasis": "Industry default",
+        "Recommendation": [
+          "Install occupancy and daylight sensors with centralised lighting controls",
+          "Replace mercury-vapour/HPS/fluorescent lamps with LED fixtures",
+          "Audit lighting fixture output and maintenance factor; verify occupancy/daylight controls are functioning as designed and re-commission sensors and scheduling"
+        ],
+        "EnergySavings": "3341.52"
+      },
+      "TotalEnergySavings": "32075.32"
+    },
+    "WaterAnalysisAndRecommendation": {
+      "WaterConsumption": "351000",
+      "WaterRecommendation": [
+        "Install closed-loop water recirculation in paint/wash processes",
+        "Recover heat from wash-tank discharge",
+        "Target zero liquid discharge (ZLD)"
+      ],
+      "TotalWaterSavings": "202921.88"
+    },
+    "RawMaterialAnalysisAndRecommendation": null
+  }
+}

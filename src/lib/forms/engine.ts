@@ -35,6 +35,8 @@ export type FieldDef = {
   help?: string;
   /** Applies only while the field is visible. */
   required?: boolean;
+  /** Cross-field requirement, e.g. "required unless X is filled". Applies only while visible. */
+  requiredWhen?: (values: Values) => boolean;
   range?: Dyn<Range | undefined>;
   options?: Dyn<readonly string[]>;
   /** Label for the empty option of an optional select (e.g. "None"). */
@@ -44,6 +46,11 @@ export type FieldDef = {
   sample?: unknown;
   /** Render across the full grid width. */
   wide?: boolean;
+  /**
+   * Opt-in input: the user ticks a checkbox to enter a value; otherwise `off` is sent (e.g. "0").
+   * `follows` = name of another optInput field whose checkbox also controls this one (no own checkbox).
+   */
+  optInput?: { off: string; follows?: string };
 };
 
 export type StepDef = {
@@ -59,6 +66,8 @@ export type FlowSchema = {
   steps: StepDef[];
   /** Fixed values always written to the payload (ProjectStatus, BuildingType, ...). */
   constants: Record<string, unknown>;
+  /** Payload paths always written as an object, even when every field under them is blank (e.g. FacilityKPIs: {}). */
+  alwaysObjects?: string[];
 };
 
 // ---------------------------------------------------------------------------
@@ -81,6 +90,21 @@ export function setPath(obj: Values, path: string, value: unknown) {
     cur = cur[key] as Record<string, unknown>;
   }
   cur[keys[keys.length - 1]] = value;
+}
+
+/** Form-state key of the checkbox that enables an opt-in field (UI only, never serialized). */
+export function gateName(field: FieldDef) {
+  return `_use.${field.optInput?.follows ?? field.name}`;
+}
+
+/**
+ * Whether an opt-in field is enabled. An explicit checkbox state wins; with no state (e.g. a payload that
+ * was already serialized) it counts as enabled when a value is present.
+ */
+export function isGateOn(field: FieldDef, values: Values) {
+  const g = getPath(values, gateName(field));
+  if (typeof g === "boolean") return g;
+  return !isEmpty(getPath(values, field.name));
 }
 
 export function resolve<T>(v: Dyn<T>, values: Values): T {
@@ -134,8 +158,9 @@ export function describeRange(r: Range | undefined): string | undefined {
 
 /** Returns an error message, or undefined when the value is valid. */
 export function validateField(field: FieldDef, value: unknown, values: Values): string | undefined {
+  if (field.optInput && !isGateOn(field, values)) return undefined;
   if (isEmpty(value)) {
-    if (!field.required) return undefined;
+    if (!field.required && !field.requiredWhen?.(values)) return undefined;
     if (field.type === "multiselect") return "Select at least one option";
     if (field.type === "select") return "Please choose an option";
     return "This field is required";
@@ -205,10 +230,15 @@ export function validateAll(schema: FlowSchema, values: Values) {
  */
 export function serialize(schema: FlowSchema, values: Values): Values {
   const out: Values = {};
+  for (const path of schema.alwaysObjects ?? []) setPath(out, path, {});
   for (const step of visibleSteps(schema, values)) {
     // Selected IEEA systems are required objects even when every field is left blank.
     if (step.id.startsWith("system:")) setPath(out, step.id.slice("system:".length), {});
     for (const f of visibleFields(step, values)) {
+      if (f.optInput && !isGateOn(f, values)) {
+        setPath(out, f.name, f.optInput.off);
+        continue;
+      }
       const v = getPath(values, f.name);
       if (isEmpty(v)) continue;
       switch (f.type) {
@@ -255,6 +285,7 @@ export function defaultValues(schema: FlowSchema): Values {
               ? []
               : "";
       if (getPath(out, f.name) === undefined) setPath(out, f.name, v);
+      if (f.optInput && !f.optInput.follows) setPath(out, gateName(f), false);
     }
   return out;
 }
@@ -268,6 +299,8 @@ export function sampleValues(schema: FlowSchema): Values {
   const out = defaultValues(schema);
   const all = schema.steps.flatMap((s) => s.fields.map((f) => ({ f, s })));
   for (const { f } of all) if (!f.visibleWhen && f.sample !== undefined) setPath(out, f.name, f.sample);
+  // Opt-in inputs are ticked in the sample when the sample value is non-zero.
+  for (const { f } of all) if (f.optInput && !f.optInput.follows && Number(f.sample) !== 0) setPath(out, gateName(f), true);
   for (let pass = 0; pass < 3; pass++) {
     for (const { f, s } of all) {
       if (!f.visibleWhen || f.sample === undefined) continue;

@@ -1,0 +1,89 @@
+{
+  "ProjectName": "AAA",
+  "ProjectAddress": "BBB",
+  "ProjectPostalCode": "000000",
+  "ProjectCountry": "Egypt",
+  "ProjectGFA": "45000",
+  "ProjectStatus": "Existing Building",
+  "BuildingData": {
+    "BuildingInfo": {
+      "BuildingName": "CCC",
+      "GFA": "45000",
+      "BuildingType": "Industrial Facility",
+      "IndustryType": "Cement",
+      "MonthlyProduction": "38000",
+      "MonthlyClinkerProduction": "26600",
+      "Consumption": {
+        "MonthlyElectricityConsumption": "3700000",
+        "MonthlyNaturalGasConsumption": "0",
+        "MonthlyCoalConsumption": "3450",
+        "MonthlyDieselConsumption": "15",
+        "MonthlyPetrolConsumption": "0",
+        "MonthlyLPGConsumption": "0",
+        "MonthlyLNGConsumption": "0",
+        "MonthlyHFOConsumption": "0",
+        "MonthlyLFOConsumption": "0",
+        "MonthlyOtherConsumption": "0",
+        "OtherEnergyEF": "0",
+        "MonthlyWaterConsumption": "8500",
+        "MonthlyRawMaterialConsumption": "58000"
+      },
+      "FacilityKPIs": {
+        "SpecificThermalEnergyConsumption": "3.37",
+        "SpecificElectricalEnergyConsumption": "97.4",
+        "CO2Intensity": "640",
+        "ClinkerRatio": "0.7",
+        "AlternativeFuelRate": "12"
+      }
+    },
+    "SystemTypes": [
+      "Motors",
+      "Compressed Air Systems",
+      "Furnaces",
+      "Clinker Handling / Conveyors",
+      "Renewable Generation (Solar PV/Thermal/Wind)"
+    ],
+    "Motors": {
+      "RatedPower": "4500",
+      "MotorEfficiency": "92",
+      "NumberOfMotors": "60",
+      "OperatingHours": "7200",
+      "LoadFactor": "70",
+      "VFDAvailability": "No",
+      "EnergyConsumptionMeasured": "24600000"
+    },
+    "CompressedAirSystems": {
+      "RatedCapacity": "120",
+      "SpecificPowerConsumption": "6.8",
+      "OperatingHours": "7200",
+      "AirLeakageRate": "25",
+      "VFDAvailability": "No",
+      "EnergyConsumptionMeasured": "5875200"
+    },
+    "Furnaces": {
+      "RatedCapacity": "45",
+      "LoadFactor": "85",
+      "OperatingHours": "8000",
+      "ThermalEfficiency": "82",
+      "ExcessAirRatio": "1.45",
+      "FlueGasLosses": "18",
+      "InsulationSurfaceTemperature": "68",
+      "EnergyConsumptionMeasured": "296700000"
+    },
+    "ClinkerHandlingConveyors": {
+      "MotorPowerRating": "160",
+      "MotorEfficiencyClass": "IE2",
+      "LoadingFactor": "55",
+      "OperatingHours": "8000",
+      "VariableSpeedDriveAvailability": "No",
+      "IdleRunningTime": "28",
+      "EnergyConsumptionMeasured": "740000"
+    },
+    "RenewableGeneration": {
+      "GenerationType": "Solar PV",
+      "InstalledCapacity": "2000",
+      "PerformanceRatio": "78",
+      "AnnualGenerationMeasured": "3300000"
+    }
+  }
+}

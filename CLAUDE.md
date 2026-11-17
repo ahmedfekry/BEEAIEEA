@@ -1,7 +1,8 @@
 # SLEB BEEA & IEEA Demo — project context for Claude Code
 
 Demo web app that integrates the SLEB Smart Hub **BEEA** (Building Energy Efficiency Assessment) and **IEEA** (Industrial Energy Efficiency Assessment) APIs.
-The full API spec is in `docs/BEEA_IEEA_API_Document_v1.0.pdf` (64 pages). Read it with the pages parameter (max 20 pages per request). It is the source of truth for every field name, type and range.
+**API version in use: v2.0** (2026-11-12). v2.0 changes only the IEEA endpoints; BEEA and login are unchanged from v1.0.
+Spec material in `docs/`: `BEEA_IEEA_API_Document_v2.0_tracked_changes_vs_v1.0.docx` (source of truth), `FORMS_SPEC.md` + `forms/*.md` (per-form field docs), `V2_CHANGES.md` (v1 -> v2 diff), `V2_MIGRATION_PLAN.md`, `spec/forms.json` (machine-readable fields), `spec/examples/*.json` (valid-JSON example requests/responses, usable as fixtures), and the old v1.0 PDF (64 pages; read with the pages parameter, max 20 per request).
 
 ## Stack
 Next.js 16 (App Router, Cache Components enabled), React 19, TypeScript, Tailwind v4, react-hook-form + zod, pdf-lib.
@@ -52,18 +53,28 @@ Dynamic routes need `generateStaticParams` because Cache Components is on.
 
 ## Form steps per flow
 - BEEA (all 3): Project -> Building Info -> Facade -> A/C System -> Air Distribution -> Lighting -> Mechanical Ventilation -> Other Systems -> Review
-- IEEA New Dev: Project -> Facility Info (industry, monthly production, optional primary fuel) -> System Types -> Review
-- IEEA Existing: Project -> Facility Info -> Consumption -> Facility KPIs (varies by industry) -> System Types -> one step per selected system -> Review
+- IEEA New Dev: Project -> Facility Info (industry + industry selector, monthly production, optional primary fuel) -> System Types -> Review
+- IEEA Existing: Project -> Facility Info (+ industry quantities) -> Consumption -> Facility KPIs (varies by industry, ALL optional) -> System Types -> one step per selected system (all optional) -> Review
+
+## IEEA v2.0 rules (implemented)
+- Industry selectors, required only for their industry (both flows): `ChemicalProductType`, `SteelProductionRoute`, `GenerationTechnology`, `FabricType`, `PrintingMethod`, `FoodSubSector`. We treat them as required in New Development too (the spec table says so; its example can't confirm).
+- Existing-only Facility Info quantities: `MonthlyClinkerProduction` (Cement; required unless `ClinkerRatio` is filled, via `requiredWhen`), `MonthlyAmmoniaProduction` (Fertilizers, required), optional `MonthlyGasFlared`/`MonthlyMethaneEmissions` (Hydrocarbons; 0 is meaningful, blank = not reported), `MonthlyWasteGenerated`, `MonthlyProductionTonnage`. Motors has optional `NumberOfMotors`.
+- All Facility KPIs are optional; a blank KPI is derived by the API (or reported under `KPIsNotAssessed`). Existing always sends `FacilityKPIs` (even `{}`) via `FlowSchema.alwaysObjects`.
+- Removed/merged: Fertilizers `ElectricityIntensity` (retired); Iron & Steel route KPIs -> `SpecificEnergyConsumption`. New: Food `SpecificEnergyConsumption`, Construction `SiteEnergyIntensity`. Unit changes: Furniture SEC (GJ/t), Printing VOC (kg/t paper), Leather energy (GJ/t raw hide).
+- Consumption step: every source (energy carriers, water, raw material) is an opt-in checkbox (`FieldDef.optInput`); unticked sources are sent as `"0"` because the API requires all of them. `OtherEnergyEF` follows the "Other energy" checkbox. The checkbox state lives in form values under `_use.<field name>` and is never serialized; a payload without it counts a field as ticked when it has a value.
+- Draft autosave key is versioned (`sleb-draft:v3:<flow>`) so old drafts are not restored.
+- Hints under inputs were removed on purpose (only validation errors show), so unit/meaning notes live in labels/units and step descriptions.
 
 ## Result handling
 - BEEA: show the returned PDF inline and allow download.
-- IEEA: show results on screen, then generate a PDF containing: project summary + totals (energy GJ/yr, carbon t CO2e/yr), SEC vs BAT, KPI benchmarking with On Track / Needs Improvement badges and recommendations, system performance benchmarking, energy analysis and savings per system, water and raw-material analysis. Treat `RawMaterialAnalysisAndRecommendation: null` as "not applicable".
+- IEEA: show results on screen, then generate a PDF containing: project summary + totals (energy GJ/yr, carbon t CO2e/yr), SEC vs BAT, **CoreIndicators**, KPI benchmarking with On Track / Needs Improvement badges, recommendations and **ValueSource** (Submitted / Derived / Baseline), **KPIsNotAssessed** (unknown, never satisfactory), system performance benchmarking, energy analysis per system with **EnergyEstimateBasis** (Measured / Calculated / Industry default / Not estimated) and savings, water and raw-material analysis.
+- Null handling: `BenchmarkingResult` null = "Info only"; energy/savings null when "Not estimated"; `CoreIndicators` values can be null; `RawMaterialAnalysisAndRecommendation: null` = not applicable. A KPI `...Recommendation` is "-" when On Track, else an array. Renewable Generation consumption is negative (offset); it and Construction Site Energy are excluded from `TotalEnergySavings`. The spec's New Development example response carries no `ValueSource` keys, so the badge shows "–" when absent.
 
 ## Code map
 - `src/lib/forms/engine.ts`: field/step types, visibility, validation, serialization, sample data (shared client + server).
 - `src/lib/forms/beea.ts`, `src/lib/forms/ieea.ts`: the 5 flow schemas; `registry.ts` looks them up by family/flow.
 - `src/app/api/assess/[family]/[flow]/route.ts`: validates + serializes server-side, calls SLEB (or mock).
-- `src/lib/sleb-mock.ts`: `SLEB_MOCK=1` placeholder results. `src/lib/ieea-pdf.ts`: IEEA PDF (pdf-lib, browser).
+- `src/lib/sleb-mock.ts`: `SLEB_MOCK=1` placeholder results (v2 shapes: CoreIndicators, ValueSource, KPIsNotAssessed, EnergyEstimateBasis incl. "Not estimated"). `src/lib/ieea-pdf.ts`: IEEA PDF (pdf-lib, browser).
 - `src/components/wizard/*`: wizard UI, review step, BEEA PDF viewer, IEEA results.
 - `src/proxy.ts`: optional `ACCESS_CODE` gate + 404 status for unknown `/assess/*` URLs.
 - Dynamic pages read `params` inside `<Suspense>` (required for instant navigation validation with Cache Components).

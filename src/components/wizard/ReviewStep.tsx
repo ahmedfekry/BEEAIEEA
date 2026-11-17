@@ -2,6 +2,7 @@
 
 import {
   getPath,
+  isGateOn,
   resolve,
   serialize,
   validateStep,
@@ -13,6 +14,7 @@ import {
 } from "@/lib/forms/engine";
 
 function display(field: FieldDef, value: unknown, values: Values) {
+  if (field.optInput && !isGateOn(field, values)) return `Not used (${field.optInput.off})`;
   if (field.type === "toggle") return value ? "Yes" : "No";
   if (Array.isArray(value)) return value.length ? value.join(", ") : "—";
   if (value === undefined || value === null || String(value).trim() === "")

@@ -1,4 +1,4 @@
-import { kpiMeta, SYSTEM_DISPLAY_NAME, systemMetricMeta } from "./forms/ieea";
+import { INFO_ONLY_KPIS, kpiMeta, SYSTEM_DISPLAY_NAME, systemMetricMeta } from "./forms/ieea";
 
 /** Shape of `data` returned by the IEEA endpoints (spec 2.2.4 / 2.2.5). Values arrive as strings. */
 export type IeeaResult = {
@@ -10,7 +10,11 @@ export type IeeaResult = {
     SECUnit?: string;
     SECBenchmarkingResult?: string;
   } | null;
+  /** v2.0: per-unit figures; any value can be null and there is no verdict. */
+  CoreIndicators?: Record<string, unknown> | null;
   KPIBenchmarking?: Record<string, unknown> | null;
+  /** v2.0: KPIs neither submitted nor derivable. Unknown, never "satisfactory". */
+  KPIsNotAssessed?: string[] | null;
   SystemPerformanceBenchmarking?: Record<string, Record<string, unknown>> | null;
   EnergyAnalysisAndRecommendation?: Record<string, unknown> | null;
   WaterAnalysisAndRecommendation?: {
@@ -51,7 +55,7 @@ export function humanize(name: string) {
     .replace(/CO2/g, "CO₂");
 }
 
-const KPI_SUFFIXES = ["OfBAT", "BenchmarkingResult", "Recommendation"];
+const KPI_SUFFIXES = ["OfBAT", "BenchmarkingResult", "Recommendation", "ValueSource"];
 
 export type KpiRow = {
   name: string;
@@ -60,6 +64,10 @@ export type KpiRow = {
   value: unknown;
   bat: unknown;
   result: string;
+  /** Submitted / Derived / Baseline (v2.0). */
+  valueSource: string;
+  /** No benchmark verdict (BenchmarkingResult is null, or an information-only KPI). */
+  infoOnly: boolean;
   recommendations: string[];
 };
 
@@ -68,13 +76,16 @@ export function kpiRows(kpis: IeeaResult["KPIBenchmarking"], industry: string): 
   const names = Object.keys(kpis).filter((k) => !KPI_SUFFIXES.some((s) => k.endsWith(s)));
   return names.map((name) => {
     const meta = kpiMeta(industry, name);
+    const result = String(kpis[`${name}BenchmarkingResult`] ?? "");
     return {
       name,
       label: meta?.label ?? humanize(name),
       unit: meta?.unit,
       value: kpis[name],
       bat: kpis[`${name}OfBAT`],
-      result: String(kpis[`${name}BenchmarkingResult`] ?? ""),
+      result,
+      valueSource: String(kpis[`${name}ValueSource`] ?? ""),
+      infoOnly: !result || INFO_ONLY_KPIS.includes(name),
       recommendations: toList(kpis[`${name}Recommendation`]),
     };
   });
@@ -109,6 +120,8 @@ export type EnergyRow = {
   name: string;
   consumption: unknown;
   savings: unknown;
+  /** Measured / Calculated / Industry default / Not estimated (v2.0). */
+  basis: string;
   recommendations: string[];
 };
 
@@ -123,8 +136,39 @@ export function energyRows(eaar: IeeaResult["EnergyAnalysisAndRecommendation"]) 
       name: SYSTEM_DISPLAY_NAME[key] ?? humanize(key),
       consumption: o.EnergyConsumption,
       savings: o.EnergySavings,
+      basis: String(o.EnergyEstimateBasis ?? ""),
       recommendations: toList(o.Recommendation),
     });
   }
   return { rows, total: eaar.TotalEnergySavings };
+}
+
+export type CoreIndicatorRow = { label: string; value: unknown; unit: string };
+
+const CORE_ROWS: [string, string, string?][] = [
+  ["TotalEnergyPerUnit", "Total energy"],
+  ["FuelEnergyPerUnit", "Fuel energy"],
+  ["ElectricityPerUnit", "Electricity"],
+  ["WaterPerUnit", "Water"],
+  ["CO2PerUnit", "Carbon emissions"],
+  ["FuelShareOfTotalEnergy", "Fuel share of total energy", "%"],
+  ["ElectricityShareOfTotalEnergy", "Electricity share of total energy", "%"],
+];
+
+const prettyUnit = (u: string) => u.replace(/CO2/g, "CO₂").replace(/m3/g, "m³").replace(/m2/g, "m²");
+
+/** Rows for the Core indicators section. Values can be null ("–"); the response has no verdict for them. */
+export function coreIndicatorRows(ci: IeeaResult["CoreIndicators"]) {
+  if (!ci) return { perUnitOf: "", rows: [] as CoreIndicatorRow[] };
+  const rows = CORE_ROWS.filter(([key]) => key in ci).map(([key, label, fixedUnit]) => ({
+    label,
+    value: ci[key],
+    unit: fixedUnit ?? prettyUnit(String(ci[`${key}Unit`] ?? "")),
+  }));
+  return { perUnitOf: humanize(String(ci.PerUnitOf ?? "")).toLowerCase(), rows };
+}
+
+/** Labels for KPIsNotAssessed entries. */
+export function notAssessedLabels(list: IeeaResult["KPIsNotAssessed"], industry: string) {
+  return (list ?? []).map((name) => kpiMeta(industry, name)?.label ?? humanize(name));
 }
